@@ -5,6 +5,7 @@ const env = require('dotenv').config();
 
 
 
+
 app.use(express.json());
 
 
@@ -15,4 +16,21 @@ app.listen(port, () => {
 
 const connectToDatabase = require('./database');
 connectToDatabase();
+
+
+
+// Import routes tables
+const userRouter = require('./Routers/userRouter');
+app.use('/users', userRouter);
+
+const candidateRouter = require('./Routers/candidateRouter');
+app.use('/candidates', candidateRouter);
+
+const companyRouter = require('./Routers/companyRouter');
+app.use('/companies', companyRouter);
+
+
+
+
+
 

@@ -1,11 +1,17 @@
-const mongosse = require("mongoose");
+const mongoose = require("mongoose");
+const userModel = require("../Models/userModel");
 
-const candidateSchema = new mongosse.Schema({
+
+const candidateSchema = new mongoose.Schema({
     photo: {type: String, required: true},
-    diplome: {type: String, required: true},
-    specialite: {type: String, required: true},
+    diplom: {type: String, required: true},
+    speciality: {type: String, required: true},
+
 
 });
 
-const Candidate = mongosse.model('Candidate', candidateSchema);
+const Candidate = userModel.discriminator('Candidate', candidateSchema);
+module.exports = Candidate;
+
+
 
