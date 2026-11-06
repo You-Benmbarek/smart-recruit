@@ -1,5 +1,7 @@
 const Company = require("../Models/companyModel");
 const prepareUser = require("./userControler").prepareUser;
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     createCompany: async (req, res) => {
@@ -9,7 +11,7 @@ module.exports = {
             const companyData = new Company({
                 ...userData,
                 role: 'Recruiter',
-                logo: req.body.logo, 
+                logo: req.file ? req.file.path : null, 
                 activity: req.body.activity,
                 
             });
@@ -48,12 +50,31 @@ module.exports = {
 
     updateCompany: async (req, res) => {
         try { 
-            const company = await Company.findByIdAndUpdate(req.params.id, req.body, {new: true});
+            const company = await Company.findById(req.params.id);
             if (!company) {
+                if (req.file) fs.unlink(req.file.path, ()=> {}); // Delete the uploaded file if company not found
                 res.status(404).json({message: 'Company not found', data: null});
             }
-            res.status(201).json({message: 'Company updated successfully', data: company});
+            const updatedData = {
+                ...req.body,
+                logo: req.file ? req.file.path : company.logo,
+            };
+            if (req.file) {
+                // Delete the old logo file if it exists
+                if (company.logo) {
+                    const oldLogoPath = company.logo;
+                    fs.unlink(oldLogoPath, (err) => {
+                        if (err) {
+                            console.error('Error deleting old logo:', err);
+                        }
+                    });
+                }
+                updatedData.logo = req.file.path;
+            }
+            const updatedCompany = await Company.findByIdAndUpdate(req.params.id, updatedData, {new: true});
+            res.status(201).json({message: 'Company updated successfully', data: updatedCompany});
         } catch (error) {
+            if (req.file) fs.unlink(req.file.path, ()=> {}); // Delete the uploaded file if there's an error
             res.status(500).json({message: 'Error updating company' + error.message});
         }
     },

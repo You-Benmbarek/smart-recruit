@@ -29,6 +29,8 @@ app.use('/candidates', candidateRouter);
 const companyRouter = require('./Routers/companyRouter');
 app.use('/companies', companyRouter);
 
+app.use('/uploads', express.static('uploads')); // Serve static files from the uploads directory (Frontend can access images via /uploads/filename)
+
 
 
 
