@@ -2,6 +2,7 @@ const Candidate = require("../Models/candidateModel");
 const prepareUser = require("./userControler").prepareUser;
 const fs = require('fs');
 const path = require('path');
+const {sendWelcomeEmail} = require("../utils/sendEmail");
 
 module.exports = {
     createCandidate: async (req, res) => {
@@ -17,6 +18,8 @@ module.exports = {
             });
            
             await candidateData.save();
+            // Send welcome email to the new candidate
+            await sendWelcomeEmail(candidateData.email, candidateData.fullName);
             res.status(201).json({message: 'Candidate created successfully ', data: candidateData});
         } catch (error) {
             res.status(500).json({message: 'Error creating candidate ' + error.message});
