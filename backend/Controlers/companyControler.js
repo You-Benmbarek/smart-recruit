@@ -2,6 +2,7 @@ const Company = require("../Models/companyModel");
 const prepareUser = require("./userControler").prepareUser;
 const fs = require('fs');
 const path = require('path');
+const {sendWelcomeEmail} = require("../utils/sendEmail");
 
 module.exports = {
     createCompany: async (req, res) => {
@@ -17,6 +18,8 @@ module.exports = {
             });
            
             await companyData.save();
+            //send welcome email to the new company
+            await sendWelcomeEmail(companyData.email, companyData.fullName);
             res.status(201).json({message: 'Company created successfully ', data: companyData});
         } catch (error) {
             res.status(500).json({message: 'Error creating company ' + error.message});
