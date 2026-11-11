@@ -1,6 +1,8 @@
 const {generateAccessToken, generateRefreshToken} = require('../utils/jwt');
 const userModel = require('../Models/userModel');
 const bcrypt = require('bcrypt');
+const {forgotPasswordEmail} = require('../utils/sendEmail');
+const crypto = require('crypto');
 
 const loginUser = async (req, res) => {
     try {
@@ -43,14 +45,43 @@ const logoutUser = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Logout failed' });
     }   
-}
+};
 
+const forgotUserPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
 
+        // Find the user by email
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate resetToken and store in database with expiration
+        const resetToken = crypto.randomBytes(32).toString("hex");
+        user.resetToken = resetToken;
+        user.resetTokenExpiration = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+        await user.save();
+
+        // Generate a reset link (this would typically involve creating a unique token and storing it)
+        const resetLink = `${process.env.APP_URL}/reset-password/${user.resetToken}`;
+        
+        // Send the forgot password email
+        await forgotPasswordEmail(user.email, user.fullName, resetLink);
+
+        res.status(200).json({ message: 'Password reset email sent' });
+    } catch (error) {
+        console.error('Error in forgotUserPassword:', error);
+        res.status(500).json({ message: 'Failed to send password reset email' });
+    }
+};
 
 
 
 module.exports = {
     loginUser,
-    logoutUser  
+    logoutUser,
+    forgotUserPassword
 };
+
 

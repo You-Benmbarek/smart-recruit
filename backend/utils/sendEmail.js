@@ -138,4 +138,51 @@ const sendWelcomeEmail = async (to, name) => {
     return sendEmail(to, subject, html, text);
 };
 
-module.exports = { sendEmail, sendWelcomeEmail };
+//Email de réinitialisation du mot de passe
+const forgotPasswordEmail = async (to, name, resetLink) => {
+    const safeName = escapeHtml(name);
+    const subject = `Password Reset Request for ${COMPANY_NAME}`;
+    const html = baseTemplate({
+        title: subject,
+        preheader: `Hello ${safeName}, you requested a password reset.`,
+        content: `
+          <h2 style="margin:0 0 20px; font-size:20px; color:#111827;">Hello ${safeName},</h2>
+          <p style="margin:0 0 16px;">
+            We received a request to reset your password for your ${COMPANY_NAME} account.
+            If you did not make this request, please ignore this email. 
+          </p>
+          <p style="margin:0 0 24px;">
+            To reset your password, click the button below: 
+          </p>
+          <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 28px;">
+            <tr>
+              <td align="center" style="background-color:#2563eb; border-radius:6px;">
+                <a href="${resetLink}"
+                   style="display:inline-block; padding:14px 32px; color:#ffffff; font-size:16px; font-weight:bold; text-decoration:none;">
+                  Reset Password
+                </a>
+              </td>
+            </tr>
+          </table>
+
+          <p style="margin:0 0 16px;">
+            If you have any questions, our team is happy to help — just reply to this email.
+          </p>
+
+          <p style="margin:0;">
+            Kind regards,<br />
+            <strong>The ${COMPANY_NAME} Team</strong>
+          </p>`,
+    });
+
+    const text =
+        `Hello ${name},\n\n` +
+        `Thank you for joining ${COMPANY_NAME}. Your account has been created successfully.\n\n` +
+        `Log in here: ${process.env.APP_URL}/login\n\n` +
+        `If you have any questions, just reply to this email.\n\n` +
+        `Kind regards,\nThe ${COMPANY_NAME} Team`;
+
+    return sendEmail(to, subject, html, text);
+};
+
+module.exports = { sendEmail, sendWelcomeEmail, forgotPasswordEmail };

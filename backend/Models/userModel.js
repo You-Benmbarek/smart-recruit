@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
     telephone: {type: String, required: true},
     role: {type: String, required: true, enum: ['Admin','Candidate', 'Recruiter']},
     refreshToken: {type: String, default: null},
+    resetToken: {type: String, default: null},
+    resetTokenExpiration: {type: Date, default: null},
 },{timestamps: true, discriminatorKey: 'role'}); 
 
 const User = mongoose.model('User', userSchema);
