@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     address: {type: String, required: true},
     telephone: {type: String, required: true},
     role: {type: String, required: true, enum: ['Admin','Candidate', 'Recruiter']},
+    refreshToken: {type: String, default: null},
 },{timestamps: true, discriminatorKey: 'role'}); 
 
 const User = mongoose.model('User', userSchema);
