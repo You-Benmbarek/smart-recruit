@@ -7,9 +7,9 @@ const userSchema = new mongoose.Schema({
     address: {type: String, required: true},
     telephone: {type: String, required: true},
     role: {type: String, required: true, enum: ['Admin','Candidate', 'Recruiter']},
-    refreshToken: {type: String, default: null},
-    resetToken: {type: String, default: null},
-    resetTokenExpiration: {type: Date, default: null},
+    refreshToken: {type: String, default: null}, // JWT
+    resetToken: {type: String, default: null}, // Token pour le reset et NON de l'authentification
+    resetTokenExpiration: {type: Date, default: null}, // Temps d'expiration du token reset
 },{timestamps: true, discriminatorKey: 'role'}); 
 
 const User = mongoose.model('User', userSchema);

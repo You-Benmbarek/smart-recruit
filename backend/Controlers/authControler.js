@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const {forgotPasswordEmail} = require('../utils/sendEmail');
 const crypto = require('crypto');
 
+
 const loginUser = async (req, res) => {
     try {
         // Find the user by email
@@ -77,11 +78,52 @@ const forgotUserPassword = async (req, res) => {
 };
 
 
+const resetPassword = async (req, res) => {
+    try {
+        const token = req.params.token || req.body.token || req.body.resetToken;
+        const { password, confirmPassword } = req.body; // Saisie dans le Link
+
+        if (!token) {
+            return res.status(400).json({ message: 'Reset token is required' });
+        }
+
+        if (!password || !confirmPassword) {
+            return res.status(400).json({ message: 'Password and confirmPassword are required' });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Passwords do not match' });
+        }
+
+        const user = await userModel.findOne({ resetToken: token }); //get user with token
+
+        if (!user) {
+            return res.status(404).json({ message: 'Invalid or expired reset token' });
+        }
+
+        if (!user.resetTokenExpiration || new Date() > new Date(user.resetTokenExpiration)) {
+            user.resetToken = null;
+            user.resetTokenExpiration = null;
+            await user.save();
+            return res.status(400).json({ message: 'Reset token has expired' });
+        } //l'utilisateur en retard
+
+        user.password = await bcrypt.hash(password, 10);
+        user.resetToken = null;
+        user.resetTokenExpiration = null;
+        await user.save();
+        return res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        return res.status(500).json({ message: 'Failed to reset password' });
+    }
+};
 
 module.exports = {
     loginUser,
     logoutUser,
-    forgotUserPassword
+    forgotUserPassword,
+    resetPassword
 };
 
 

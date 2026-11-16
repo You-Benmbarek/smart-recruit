@@ -14,9 +14,17 @@ const generateRefreshToken = (user) => {
 
 const verifyAccessToken = (token) => {
     try {
-        return jwt.verify(token, process.env.SecretKey);
+        const decoded = jwt.verify(token, process.env.SecretKey);
+       return { valid: true, expired: false, decoded };
     } catch (error) {
-        throw new Error('Invalid or expired access token');
+        if (error.name === "TokenExpiredError")
+        {
+            return { valid: false, expired: true, decoded: null };
+        }
+        else 
+            {
+                return { valid: false, expired: false, decoded: null };
+            }
     }
 };
 
